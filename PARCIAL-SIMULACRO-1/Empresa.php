@@ -101,7 +101,7 @@ public function retornarMoto($codigoMoto){
     foreach ($this->motos as $moto) {
         if ($moto->getCodigo() == $codigoMoto) {
             $respuesta = $moto;
-            break;
+
         }
     }
     return $respuesta;

@@ -1,0 +1,7 @@
+Un aeropuerto desea guardar y gestionar los vuelos que arriban y parten de las diferentes aerolíneas. 
+Para ello, el aeropuerto guarda la colección de aerolíneas, las cuales administran los diferentes vuelos que ofrecen, 
+a diferentes destinos. Cada vuelo tiene asignada una fecha, una hora de arribo, hora de partida y comandante responsable del vuelo. 
+Para ello implementar las clases: Aeropuerto, Aerolínea, Vuelo y Persona .
+
+
+En la clase Persona se registra la siguiente información: nombre, apellido, dirección, mail y teléfono. 
