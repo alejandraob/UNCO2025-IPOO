@@ -1,0 +1,26 @@
+Una empresa TxC de Televisión por Cable desea sistematizar el contrato de los planes que ofrece a sus clientes. 
+Para ello desea almacenar información de los planes, canales, clientes y los contratos de los planes. 
+El contrato de los planes puede realizarse vía web o en la oficina de la empresa de cable.
+
+De los planes se almacena un código, los canales que ofrece, el importe y si incluye MG de datos o no. 
+Por defecto se asume que el plan incluye 100 MG.
+
+De los canales se conoce el tipo de canal, importe y si es HD o no. Algunos ejemplos de tipos de canal son: noticias, 
+interés general, musical, deportivo, películas, educativo, infantil, educativo infantil, aventura.
+
+Adquirir un plan por parte del cliente implica un contrato con la empresa. 
+Los contratos tienen una fecha de inicio, la fecha de vencimiento, 
+el plan, un estado (al día, moroso, suspendido, finalizado), un costo, si se renueva o no y una referencia al cliente que adquirió el contrato. 
+
+De un contrato realizado vía web se guarda además el porcentaje de descuento y tiene un cálculo de costo diferente. 
+El importe final de un contrato realizado en la empresa se calcula sobre el importe del plan más los importes parciales de cada uno de los canales que lo forman. 
+ Si se trata de un contrato realizado via web al importe del mismo se le aplica un porcentaje de descuento que por defecto es del 10%.
+
+Un contrato se considera en estado moroso cuando su fecha de vencimiento ha sido superada, en caso de que pasen 10 días al vencimiento el estado
+ cambiará de moroso a suspendido; caso contrario el contrato se encuentra al día. Antes de que un cliente realice un pago se debe verificar su estado.
+
+Cuando un cliente paga su contrato hay que analizar el estado del mismo. Si el contrato está al día, se renovará por un mes más abonando el importe pactado.
+ Si el contrato está en estado moroso, se cobrará una multa que será un incremento del 10% del valor pactado por la cantidad de días en mora, además su estado 
+ se actualizará al valor al día y se renovará. Si el estado del contrato es suspendido se cobrará la misma multa de un contrato moroso pero no se permitirá su
+  renovación. Si el estado del contrato es finalizado no se podrá realizar ninguna acción sobre ese contrato, es el ultimo estado en el que se puede encontrar 
+  un contrato y que es inmutable (no puede pasar a ningún otro estado).
