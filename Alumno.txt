@@ -3,3 +3,5 @@ Tecnico Univ. Desarrollo Web
 Legajo 4231
 
 https://github.com/alejandraob/UNCO2025-IPOO.git
+
+https://github.com/alejandraob/UNCO2025-IPOO/tree/da1d38ffe9f4e3cf29046373cbcba9f500be21a7/SUMULACRO_2-PARCIAL
