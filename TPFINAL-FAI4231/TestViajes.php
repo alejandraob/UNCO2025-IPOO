@@ -29,19 +29,19 @@ do {
     switch ($opcion) {
         case '1':
             // Incluye y ejecuta el script de gestión de empresas
-            include_once 'controller/GestionEmpresas.php';
+            require_once 'controller/GestionEmpresas.php';
             break;
         case '2':
             // Incluye y ejecuta el script de gestión de viajes
-            include_once 'controller/GestionViajes.php';
+            require_once 'controller/GestionViajes.php';
             break;
         case '3':
             // Incluye y ejecuta el script de gestión de pasajeros
-            include_once 'controller/GestionPasajeros.php';
+            require_once 'controller/GestionPasajeros.php';
             break;
         case '4':
             // Incluye y ejecuta el script de gestión de responsables
-            include_once 'controller/GestionResponsables.php';
+            require_once 'controller/GestionResponsables.php';
             break;
         case '0':
             echo "Saliendo del programa. ¡Hasta luego!\n";
