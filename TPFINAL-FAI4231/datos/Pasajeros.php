@@ -1,35 +1,46 @@
 <?php
 include_once "BaseDatos.php";
 include_once "Viajes.php";
-class Pasajeros
+include_once "Persona.php";
+class Pasajeros extends  Persona
 {
-
-    private $pnombre;
-    private $papellido;
+    //Atributos
+    private $idpasajero; // ID del pasajero
     private $pdocumento;
     private $ptelefono;
-    private $idviaje;
+    private $objViaje;
+    private $pnombre;
+    private $papellido;
 
     //Constructor
     public function __construct()
     {
+        parent::__construct(); // Llamar al constructor de la clase padre Persona
+        $this->idpasajero = 0; // Inicializar el ID del pasajero
         $this->pdocumento = '';
+        $this->ptelefono = '';
+        $this->objViaje = new Viajes();
         $this->pnombre = '';
         $this->papellido = '';
-        $this->ptelefono = '';
-        $this->idviaje = new Viajes();
     }
 
+    //Getters y Setters
+    public function setIdPasajero($id)
+    {
+        if (!is_numeric($id)) {
+            throw new InvalidArgumentException("El ID del pasajero debe ser numérico");
+        }
+        $this->idpasajero = $id;
+    }
 
-
-    public function setNombre($nom)
+    public function setPNombre($nom)
     {
         if (empty($nom)) {
             throw new InvalidArgumentException("El nombre no puede estar vacío");
         }
         $this->pnombre = $nom;
     }
-    public function setApellido($ape)
+    public function setPApellido($ape)
     {
         if (empty($ape)) {
             throw new InvalidArgumentException("El apellido no puede estar vacío");
@@ -59,14 +70,18 @@ class Pasajeros
         if ($viaje === null || !($viaje instanceof Viajes)) {
             throw new InvalidArgumentException("El viaje debe ser una instancia válida de la clase Viajes");
         }
-        $this->idviaje = $viaje;
+        $this->objViaje = $viaje;
+    }
+    public function getIdPasajero()
+    {
+        return $this->idpasajero;
     }
 
-    public function getNombre()
+    public function getPNombre()
     {
         return $this->pnombre;
     }
-    public function getApellido()
+    public function getPApellido()
     {
         return $this->papellido;
     }
@@ -80,25 +95,35 @@ class Pasajeros
     }
     public function getViaje()
     {
-        return $this->idviaje;
+        return $this->objViaje;
     }
 
     /**
      * Summary of cargarPasajero
-     * @param mixed $nDoc
-     * @param mixed $nom
-     * @param mixed $ape
-     * @param mixed $tel
-     * @param mixed $viaje
-     * @return void
+     * Carga los datos del pasajero y asigna el viaje asociado
+     * Si $viaje es un ID, crea un nuevo objeto Viajes y carga los datos
+
+     * @param string $nDoc Número de documento del pasajero
+     * @param string $nom Nombre del pasajero
+     * @param string $ape Apellido del pasajero
+     * @param string $tel Teléfono del pasajero
+     * @param mixed $viaje Puede ser un objeto Viajes o un ID de viaje
+     * @throws \Exception Si hay error al cargar el viaje asociado
      */
     public function cargarPasajero($nDoc, $nom, $ape, $tel, $viaje)
     {
         $this->setNroDoc($nDoc);
-        $this->setNombre($nom);
-        $this->setApellido($ape);
         $this->setTelefono($tel);
-        $this->setViaje($viaje);
+        $this->pnombre = $nom;
+        $this->papellido = $ape;
+        if ($viaje instanceof Viajes) {
+            $this->setViaje($viaje);
+        } else {
+            // Solo asignar el ID sin cargar completamente el viaje
+            $objViaje = new Viajes();
+            $objViaje->setIdViaje($viaje);
+            $this->setViaje($objViaje);
+        }
     }
 
     //Metodos ORM
@@ -131,6 +156,7 @@ class Pasajeros
         // Si se encontró el pasajero, cargar sus datos en el objeto
         // y devolver true, si no se encontró, devolver false
         if ($array = $base->Registro()) {
+            $this->setIdPasajero($array['idpasajero'] ?? 0);
             $this->setNombre($array['pnombre'] ?? '');
             $this->setApellido($array['papellido'] ?? '');
             $this->setNroDoc($array['pdocumento'] ?? '');
@@ -139,6 +165,15 @@ class Pasajeros
         }
 
         return $respuesta;
+    }
+    public static function listarPasajerosPorViaje($idViaje)
+    {
+        return self::listarPasajeros(
+            "p.idpasajero IN (
+                SELECT vp.idpasajero FROM viaje_pasajero vp 
+                WHERE vp.idviaje = $idViaje
+            )"
+        );
     }
     /**
      * Summary of obtenerDatosActuales
@@ -187,33 +222,50 @@ class Pasajeros
         $base = new BaseDatos();
         $respuesta = false;
 
-        // Verificar si ya existe el pasajero
-        $verificador = new Pasajeros();
-        if ($verificador->buscarPasajerosXDni($this->getNroDoc())) {
-            throw new Exception("Ya existe un pasajero con el mismo documento.");
-        }
-
-        // Validar que el pasajero tenga un viaje asociado
-        if ($this->getViaje() === null || $this->getViaje()->getIdViaje() === null) {
-            throw new Exception("El pasajero debe estar asociado a un viaje válido");
-        }
         //Conectar a la base de datos
         if (!$base->Iniciar()) {
             throw new Exception("Error al conectar a la BD: " . $base->getError());
         }
+        // Verificar si ya existe el pasajero (incluyendo verificación en viaje_pasajero)
+        $consultaVerificacion = "SELECT COUNT(*) as existe 
+                                FROM pasajero p
+                                INNER JOIN viaje_pasajero vp ON p.idpasajero = vp.idpasajero
+                                WHERE p.pdocumento = '" . $this->getNroDoc() . "'
+                                AND vp.idviaje = " . $this->getViaje()->getIdViaje();
+
+        if ($base->Ejecutar($consultaVerificacion)) {
+            $fila = $base->Registro(); // Recupera la fila con el COUNT
+            if ($fila['existe'] > 0) {
+                throw new Exception("El pasajero ya está asignado a este viaje");
+            }
+        }
+
+
         //Crear la consulta para insertar el pasajero
-        $consulta = "INSERT INTO pasajero (pnombre, papellido, pdocumento, ptelefono, idviaje) 
-            VALUES ('" . $this->getNombre() . "', 
-                    '" . $this->getApellido() . "', 
-                    '" . $this->getNroDoc() . "', 
-                    '" . $this->getTelefono() . "', 
-                    " . $this->getViaje()->getIdViaje() . ")";
-        // Ejecutar la consulta
+        $consulta = "INSERT INTO pasajero (pnombre, papellido, pdocumento, ptelefono) 
+        VALUES ('" . $this->getPNombre() . "', 
+                '" . $this->getPApellido() . "', 
+                '" . $this->getNroDoc() . "', 
+                '" . $this->getTelefono() . "')";
+
         if (!$base->Ejecutar($consulta)) {
             throw new Exception("Error al ejecutar consulta Insertar: " . $base->getError());
-        }else{
+        } else {
+
+            $idInsertado = $base->devuelveIDInsercionSinConsulta();
+            $this->idpasajero = $idInsertado;
+
+            // ✅ Acá sí insertás el vínculo entre el viaje y el pasajero
+            $consultaViajePasajero = "INSERT INTO viaje_pasajero (idviaje, idpasajero) 
+                VALUES (" . $this->getViaje()->getIdViaje() . ", 
+                        " . $idInsertado . ")";
+
+            if (!$base->Ejecutar($consultaViajePasajero)) {
+                throw new Exception("Error al vincular pasajero con viaje: " . $base->getError());
+            }
             $respuesta = true;
         }
+
         return $respuesta;
     }
 
@@ -319,7 +371,9 @@ class Pasajeros
             throw new InvalidArgumentException("La condición debe ser una cadena de texto");
         }
         // Si la condición no es una cadena vacía, la agregamos a la consulta
-        $consulta = "SELECT * FROM `pasajero`";
+        $consulta = "SELECT p.idpasajero, p.pnombre, p.papellido, p.pdocumento, p.ptelefono, 
+                vp.idviaje FROM pasajero p
+                INNER JOIN viaje_pasajero vp ON p.idpasajero = vp.idpasajero";
         $consulta = (!empty($condicion)) ? $consulta . ' WHERE ' . $condicion : $consulta;
 
         // Iniciar la conexión a la base de datos
@@ -332,15 +386,19 @@ class Pasajeros
         }
         // Recorrer los resultados y crear objetos Pasajeros
         while (($array = $base->Registro()) !== null) {
-            $nroDoc = $array['pdocumento'];
-            $nom = $array['pnombre'];
-            $ape = $array['papellido'];
-            $tel = $array['ptelefono'];
-            $idViaje = $array['idviaje'];
-            // Crear un nuevo objeto Pasajeros y cargar sus datos
             $pasajero = new Pasajeros();
-            $pasajero->cargarPasajero($nroDoc, $nom, $ape, $tel, $idViaje);
-            array_push($arrayPersona, $pasajero);
+            // Asignar los valores directamente
+            $pasajero->setIdPasajero($array['idpasajero']);
+            $pasajero->setPNombre($array['pnombre']);
+            $pasajero->setPApellido($array['papellido']);
+            $pasajero->setNroDoc($array['pdocumento']);
+            $pasajero->setTelefono($array['ptelefono']);
+
+            // Crear el Viaje solo con el ID (sin cargarlo completamente)
+            $objViaje = new Viajes();
+            $objViaje->setIdViaje($array['idviaje']);
+            $pasajero->setViaje($objViaje);
+            $arrayPersona[] = $pasajero;
         }
         return $arrayPersona;
     }
@@ -351,7 +409,8 @@ class Pasajeros
      * Incluye DNI, nombre, apellido y teléfono
      * @return string
      */
-    public function __toString() {
-        return "DNI: " . $this->getNroDoc() . " - " . $this->getApellido() . ", " . $this->getNombre() . " - Teléfono: " . $this->getTelefono();
+    public function __toString()
+    {
+        return "ID: " . $this->getIdPasajero() . " | " . parent::__toString() . " | DNI: " . $this->getNroDoc() . " | Tel: " . $this->getTelefono();
     }
 }

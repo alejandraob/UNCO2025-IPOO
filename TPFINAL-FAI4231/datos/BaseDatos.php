@@ -120,5 +120,21 @@ public function devuelveIDInsercion($consulta) {
     
     return $resp;
 }
+
+public function devuelveIDInsercionSinConsulta() {
+    $id = mysqli_insert_id($this->CONEXION);
+    return $id > 0 ? $id : null;
+}
+//Crear funcion que me devuelva el nro de registros
+    public function NroRegistros() {
+        $resp = 0;
+        if ($this->RESULT) {
+            unset($this->ERROR);
+            $resp = mysqli_num_rows($this->RESULT);
+        } else {
+            $this->ERROR = mysqli_errno($this->CONEXION) . ": " . mysqli_error($this->CONEXION);
+        }
+        return $resp;
+    }
 }
 ?>

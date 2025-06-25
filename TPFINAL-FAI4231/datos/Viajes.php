@@ -244,9 +244,6 @@ class Viajes
             throw new Exception("Error al listar los viajes. SQL: " . $conexion->getError());
         }
         // Retornamos el array de viajes
-        if (empty($arrViajes)) {
-            throw new Exception("No se encontraron viajes con la condición especificada.");
-        }
         return $arrViajes;
     }
 
@@ -285,7 +282,7 @@ class Viajes
 
                 $responsable = new ResponsableV();
                 $responsable->setNroEmpleado($row2['rnumeroempleado']);
-                $responsable->buscarEmpleado();
+                $responsable->buscarEmpleado($row2['rnumeroempleado']);
                 $this->setResponsable($responsable);
                 $resp = true;
                 // Cargamos los pasajeros del viaje

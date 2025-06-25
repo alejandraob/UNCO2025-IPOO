@@ -1,23 +1,28 @@
 <?php
-class ResponsableV
+include_once "Persona.php";
+include_once "BaseDatos.php";
+class ResponsableV extends Persona
 {
     private $nroEmpleado;
     private $nroLicencia;
 
-    private $nombre;
-    private $apellido;
+    private $rnombre;
+    private $rapellido;
 
     public function __construct()
     {
+        parent::__construct(); // Llamamos al constructor de la clase padre Persona
         $this->nroEmpleado = '';
         $this->nroLicencia = '';
-        $this->nombre = '';
-        $this->apellido = '';
+        $this->rnombre = ''; 
+        $this->rapellido = ''; 
+
     }
 
     public function setNroEmpleado($nroEmpleado)
     {
         $this->nroEmpleado = $nroEmpleado;
+        $this->setIdPersona($nroEmpleado);
     }
     public function setNroLicencia($nroLicencia)
     {
@@ -29,19 +34,19 @@ class ResponsableV
         }
         $this->nroLicencia = $nroLicencia;
     }
-    public function setNombre($nombre)
+    public function setRNombre($rnombre)
     {
-        if (empty($nombre)) {
+        if (empty($rnombre)) {
             throw new InvalidArgumentException("El nombre no puede estar vacío");
         }
-        $this->nombre = $nombre;
+        $this->rnombre = $rnombre;
     }
-    public function setApellido($apellido)
+    public function setRApellido($rapellido)
     {
-        if (empty($apellido)) {
+        if (empty($rapellido)) {
             throw new InvalidArgumentException("El apellido no puede estar vacío");
         }
-        $this->apellido = $apellido;
+        $this->rapellido = $rapellido;
     }
 
     public function getNroEmpleado()
@@ -52,13 +57,13 @@ class ResponsableV
     {
         return $this->nroLicencia;
     }
-    public function getNombre()
+    public function getRNombre()
     {
-        return $this->nombre;
+        return $this->rnombre;
     }
-    public function getApellido()
+    public function getRApellido()
     {
-        return $this->apellido;
+        return $this->rapellido;
     }
 
     /**
@@ -71,10 +76,11 @@ class ResponsableV
      */
     public function cargarEmpleado($nroEmp, $nLic, $nomE, $apeE)
     {
+        parent::cargarDatos(0, $nomE, $apeE);
         $this->setNroEmpleado($nroEmp);
         $this->setNroLicencia($nLic);
-        $this->setNombre($nomE);
-        $this->setApellido($apeE);
+        $this->rnombre = $nomE;
+        $this->rapellido = $apeE;
     }
 
 
@@ -126,8 +132,8 @@ class ResponsableV
         // Si se encuentra un registro, cargamos los datos en el objeto
         // y devolvemos true
         if ($array = $base->Registro()) {
-            $this->setNroEmpleado($array['rnumeroempleado'] ?? '');
-            $this->setNroLicencia($array['rnumerolicencia'] ?? '');
+            $this->setNroEmpleado($array['rnumeroempleado'] ?? 0);
+            $this->setNroLicencia($array['rnumerolicencia'] ?? 0);
             $this->setNombre($array['rnombre'] ?? '');
             $this->setApellido($array['rapellido'] ?? '');
             $respuesta = true;
@@ -164,15 +170,15 @@ class ResponsableV
             throw new Exception("Error al iniciar la BD: " . $base->getError());
         }
         // Construimos la consulta
-        $consulta = "SELECT * FROM responsable WHERE rnumeroempleado = '" . $nroResponsable . "'";
+        $consulta = "SELECT * FROM responsable";
         // Si se proporciona un número de empleado o licencia, se agrega a la consulta
-        if (!empty($nroResponsable) and empty($nlic)) {
+        if (!empty($nroResponsable) && empty($nlic)) {
             $consulta .= " WHERE rnumeroempleado='" . $nroResponsable . "'";
-        } else if (empty($nroResponsable) and !empty($nlic)) {
+        } else if (empty($nroResponsable) && !empty($nlic)) {
             $consulta .= " WHERE rnumerolicencia='" . $nlic . "'";
-        } else {
+        } else if (!empty($nroResponsable) && !empty($nlic)) {
             $consulta .= " WHERE rnumerolicencia='" . $nlic . "' AND rnumeroempleado='" . $nroResponsable . "'";
-        }
+        } 
         // Ejecutamos la consulta
         if (!$base->Ejecutar($consulta)) {
             throw new Exception("Error al ejecutar la consulta: " . $base->getError());
@@ -215,8 +221,8 @@ class ResponsableV
                             `rapellido`
                         )
             VALUES ('" . $this->getNroLicencia() . "', 
-                    '" . $this->getNombre() . "', 
-                    '" . $this->getApellido() . "')";
+                    '" . $this->getRNombre() . "', 
+                    '" . $this->getRApellido() . "')";
         // Ejecutamos la consulta
         if (!$base->Ejecutar($consulta)) {
             throw new Exception("Error al ejecutar consulta Insertar: " . $base->getError());
@@ -379,6 +385,6 @@ class ResponsableV
      */
     public function __toString()
     {
-        return "ID: " . $this->getNroEmpleado() . " - Nombre: " . $this->getApellido() . ", " . $this->getNombre() . " - Licencia: " . $this->getNroLicencia();
+        return "ID: " . $this->getNroEmpleado() . " | " . parent::__toString() . " | Licencia: " . $this->getNroLicencia();
     }
 }

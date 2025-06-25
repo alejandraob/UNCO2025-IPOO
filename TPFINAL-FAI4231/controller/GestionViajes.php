@@ -82,6 +82,7 @@ function altaViaje()
         echo "❌ Error: " . $e->getMessage() . "\n";
     }
 
+    
     pausar();
 }
 
