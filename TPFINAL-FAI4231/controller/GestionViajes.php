@@ -99,6 +99,13 @@ function modificarViaje()
     limpiarPantalla();
     echo "======== MODIFICAR VIAJE ========\n";
     try {
+        //Selecione un viaje
+        echo "selecione un viaje\n";
+        echo "----------------------------------------\n";
+        foreach (Viajes::listar() as $viaje) {
+            echo "ID: " . $viaje->getIdViaje() . " - Destino: " . $viaje->getDestino() . "\n";
+        }
+        echo "----------------------------------------\n";
         echo "Ingrese ID del viaje a modificar: ";
         $id = trim(fgets(STDIN));
 
@@ -153,6 +160,11 @@ function eliminarViaje()
     limpiarPantalla();
     echo "======== ELIMINAR VIAJE ========\n";
     try {
+        echo "----------------------------------------\n";
+        foreach (Viajes::listar() as $viaje) {
+            echo "ID: " . $viaje->getIdViaje() . " - Destino: " . $viaje->getDestino() . "\n";
+        }
+        echo "----------------------------------------\n";
         echo "Ingrese ID del viaje a eliminar: ";
         $id = trim(fgets(STDIN));
 

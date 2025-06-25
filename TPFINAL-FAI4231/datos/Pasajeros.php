@@ -9,8 +9,6 @@ class Pasajeros extends  Persona
     private $pdocumento;
     private $ptelefono;
     private $objViaje;
-    private $pnombre;
-    private $papellido;
 
     //Constructor
     public function __construct()
@@ -20,8 +18,6 @@ class Pasajeros extends  Persona
         $this->pdocumento = '';
         $this->ptelefono = '';
         $this->objViaje = new Viajes();
-        $this->pnombre = '';
-        $this->papellido = '';
     }
 
     //Getters y Setters
@@ -33,19 +29,14 @@ class Pasajeros extends  Persona
         $this->idpasajero = $id;
     }
 
-    public function setPNombre($nom)
-    {
-        if (empty($nom)) {
-            throw new InvalidArgumentException("El nombre no puede estar vacío");
-        }
-        $this->pnombre = $nom;
+    public function setNombre($nom) {
+        parent::setNombre($nom);  
+        $this->nombre = $nom;     
     }
-    public function setPApellido($ape)
-    {
-        if (empty($ape)) {
-            throw new InvalidArgumentException("El apellido no puede estar vacío");
-        }
-        $this->papellido = $ape;
+    
+    public function setApellido($ape) {
+        parent::setApellido($ape);
+        $this->apellido = $ape;
     }
     public function setNroDoc($nDoc)
     {
@@ -77,13 +68,14 @@ class Pasajeros extends  Persona
         return $this->idpasajero;
     }
 
-    public function getPNombre()
+    public function getNombre()
     {
-        return $this->pnombre;
+        return parent::getNombre();
     }
-    public function getPApellido()
+    
+    public function getApellido()
     {
-        return $this->papellido;
+        return parent::getApellido();
     }
     public function getNroDoc()
     {
@@ -114,8 +106,8 @@ class Pasajeros extends  Persona
     {
         $this->setNroDoc($nDoc);
         $this->setTelefono($tel);
-        $this->pnombre = $nom;
-        $this->papellido = $ape;
+        $this->setNombre($nom); 
+        $this->setApellido($ape);
         if ($viaje instanceof Viajes) {
             $this->setViaje($viaje);
         } else {
@@ -243,8 +235,8 @@ class Pasajeros extends  Persona
 
         //Crear la consulta para insertar el pasajero
         $consulta = "INSERT INTO pasajero (pnombre, papellido, pdocumento, ptelefono) 
-        VALUES ('" . $this->getPNombre() . "', 
-                '" . $this->getPApellido() . "', 
+        VALUES ('" . $this->getNombre() . "', 
+                '" . $this->getApellido() . "', 
                 '" . $this->getNroDoc() . "', 
                 '" . $this->getTelefono() . "')";
 
@@ -297,18 +289,18 @@ class Pasajeros extends  Persona
         // Verificamos qué campos cambiaron y no están vacíos
         $updates = [];
 
-        if (!empty($this->getNombre()) && $this->getNombre() !== $datosActuales['pnombre']) {
+        if ($this->getNombre() !== ($datosActuales['pnombre'] ?? '')) {
             $updates[] = "pnombre='" . $this->getNombre() . "'";
         }
-
-        if (!empty($this->getApellido()) && $this->getApellido() !== $datosActuales['papellido']) {
+    
+        if ($this->getApellido() !== ($datosActuales['papellido'] ?? '')) {
             $updates[] = "papellido='" . $this->getApellido() . "'";
         }
-
-        if (!empty($this->getTelefono()) && $this->getTelefono() !== $datosActuales['ptelefono']) {
+    
+        if ($this->getTelefono() !== ($datosActuales['ptelefono'] ?? '')) {
             $updates[] = "ptelefono='" . $this->getTelefono() . "'";
         }
-
+        // Si no hay cambios, lanzamos una excepción
         if (count($updates) === 0) {
             throw new Exception("No hay cambios para actualizar.");
         }
@@ -389,8 +381,8 @@ class Pasajeros extends  Persona
             $pasajero = new Pasajeros();
             // Asignar los valores directamente
             $pasajero->setIdPasajero($array['idpasajero']);
-            $pasajero->setPNombre($array['pnombre']);
-            $pasajero->setPApellido($array['papellido']);
+            $pasajero->setNombre($array['pnombre']);
+            $pasajero->setApellido($array['papellido']);
             $pasajero->setNroDoc($array['pdocumento']);
             $pasajero->setTelefono($array['ptelefono']);
 
@@ -411,6 +403,9 @@ class Pasajeros extends  Persona
      */
     public function __toString()
     {
-        return "ID: " . $this->getIdPasajero() . " | " . parent::__toString() . " | DNI: " . $this->getNroDoc() . " | Tel: " . $this->getTelefono();
+        return "ID: " . $this->getIdPasajero() . 
+               " | Nombre: " . $this->getNombre() . " " . $this->getApellido() .
+               " | DNI: " . $this->getNroDoc() . 
+               " | Tel: " . $this->getTelefono();
     }
 }

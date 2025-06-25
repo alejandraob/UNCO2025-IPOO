@@ -93,13 +93,17 @@ function modificarPasajero($viaje)
         echo "Nuevo nombre (actual: " . $pasajero->getNombre() . ", dejar vacío para no modificar): ";
         $nombre = trim(fgets(STDIN));
         if (!empty($nombre)) {
+          //  echo "DEBUG - Valor a establecer: " . $nombre . "\n";
             $pasajero->setNombre($nombre);
+            //echo "DEBUG - Nuevo apellido establecido: " . $pasajero->getNombre() . "\n";
         }
 
         echo "Nuevo apellido (actual: " . $pasajero->getApellido() . ", dejar vacío para no modificar): ";
         $apellido = trim(fgets(STDIN));
         if (!empty($apellido)) {
+          //  echo "DEBUG - Valor a establecer: " . $apellido . "\n";
             $pasajero->setApellido($apellido);
+            //echo "DEBUG - Nuevo apellido establecido: " . $pasajero->getApellido() . "\n";
         }
 
         echo "Nuevo teléfono (actual: " . $pasajero->getTelefono() . ", dejar vacío para no modificar): ";

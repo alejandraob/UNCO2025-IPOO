@@ -43,8 +43,8 @@ class Persona {
         return $this->apellido;
     }
 
-    public function cargarDatos($id, $nombre, $apellido) {
-        $this->setIdPersona($id);
+    public function cargarDatos($nombre, $apellido) {
+
         $this->setNombre($nombre);
         $this->setApellido($apellido);
     }

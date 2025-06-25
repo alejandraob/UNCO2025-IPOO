@@ -5,17 +5,11 @@ class ResponsableV extends Persona
 {
     private $nroEmpleado;
     private $nroLicencia;
-
-    private $rnombre;
-    private $rapellido;
-
     public function __construct()
     {
         parent::__construct(); // Llamamos al constructor de la clase padre Persona
         $this->nroEmpleado = '';
         $this->nroLicencia = '';
-        $this->rnombre = ''; 
-        $this->rapellido = ''; 
 
     }
 
@@ -34,19 +28,12 @@ class ResponsableV extends Persona
         }
         $this->nroLicencia = $nroLicencia;
     }
-    public function setRNombre($rnombre)
-    {
-        if (empty($rnombre)) {
-            throw new InvalidArgumentException("El nombre no puede estar vacío");
-        }
-        $this->rnombre = $rnombre;
+    public function setNombre($nom) {
+        parent::setNombre($nom);    
     }
-    public function setRApellido($rapellido)
-    {
-        if (empty($rapellido)) {
-            throw new InvalidArgumentException("El apellido no puede estar vacío");
-        }
-        $this->rapellido = $rapellido;
+    
+    public function setApellido($ape) {
+        parent::setApellido($ape);
     }
 
     public function getNroEmpleado()
@@ -56,14 +43,14 @@ class ResponsableV extends Persona
     public function getNroLicencia()
     {
         return $this->nroLicencia;
-    }
-    public function getRNombre()
+    }    public function getNombre()
     {
-        return $this->rnombre;
+        return parent::getNombre();
     }
-    public function getRApellido()
+    
+    public function getApellido()
     {
-        return $this->rapellido;
+        return parent::getApellido();
     }
 
     /**
@@ -76,11 +63,10 @@ class ResponsableV extends Persona
      */
     public function cargarEmpleado($nroEmp, $nLic, $nomE, $apeE)
     {
-        parent::cargarDatos(0, $nomE, $apeE);
         $this->setNroEmpleado($nroEmp);
         $this->setNroLicencia($nLic);
-        $this->rnombre = $nomE;
-        $this->rapellido = $apeE;
+        $this->setNombre( $nomE);
+        $this->setApellido( $apeE);
     }
 
 
@@ -221,8 +207,8 @@ class ResponsableV extends Persona
                             `rapellido`
                         )
             VALUES ('" . $this->getNroLicencia() . "', 
-                    '" . $this->getRNombre() . "', 
-                    '" . $this->getRApellido() . "')";
+                    '" . $this->getNombre() . "', 
+                    '" . $this->getApellido() . "')";
         // Ejecutamos la consulta
         if (!$base->Ejecutar($consulta)) {
             throw new Exception("Error al ejecutar consulta Insertar: " . $base->getError());
@@ -240,7 +226,7 @@ class ResponsableV extends Persona
      * @throws \Exception
      * @return bool
      */
-    public function modificarPasajero()
+    public function modificarEmpleado()
     {
         $respuesta = false;
         $base = new BaseDatos();

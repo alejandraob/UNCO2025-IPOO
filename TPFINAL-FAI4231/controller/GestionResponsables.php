@@ -93,7 +93,7 @@ function modificarResponsable()
             $responsable->setApellido($nuevoApellido);
         }
 
-        if ($responsable->modificarResponsable()) {
+        if ($responsable->modificarEmpleado()) {
             echo "✅ Responsable modificado correctamente.\n";
         }
     } catch (Exception $e) {
@@ -140,7 +140,7 @@ function eliminarResponsable()
         $confirmacion = strtoupper(trim(fgets(STDIN)));
 
         if ($confirmacion === 'S') {
-            if ($responsable->eliminarResponsable()) {
+            if ($responsable->eliminarEmpleado()) {
                 echo "✅ Responsable eliminado correctamente.\n";
             }
         } else {
